@@ -46,33 +46,46 @@
   function cached() { try { return JSON.parse(ls(KEY) || "null"); } catch (e) { return null; } }
 
   function css(el, s) { el.setAttribute("style", s); return el; }
+  var TXT = {
+    blockTitle: "Аккаунт заблокирован",
+    blockText: "В ваш аккаунт входили более чем с трёх разных устройств, в том числе после предупреждения. Доступ к материалам личного кабинета персональный, поэтому аккаунт заблокирован.",
+    blockHelp: "Если вы считаете, что это ошибка, напишите нам в WhatsApp или Telegram.",
+    blockBtn: "На главную enhelp.kz",
+    warnTitle: "Предупреждение",
+    warnText: "В ваш аккаунт входили с нескольких разных устройств. Напоминаем: доступ к материалам личного кабинета персональный, вход допускается не более чем с трёх разных устройств, передавать логин и пароль третьим лицам запрещено.",
+    warnText2: "Если вход с новых устройств продолжится, аккаунт будет заблокирован и вы потеряете доступ.",
+    warnBtn: "Понятно"
+  };
+  var FONT = "font-family:'Open Sans',Arial,sans-serif;color:#1f1b22";
+  var CARD = "max-width:460px;width:100%;box-sizing:border-box;background:#fff;border:1px solid #e4e7ee;border-radius:16px;padding:28px;display:grid;gap:12px";
+  var P = "margin:0;color:#4a586e;font-size:15px;line-height:1.55";
+  var H = "margin:0;font:700 24px/1.2 Georgia,'Times New Roman',serif;color:#1f1b22";
+  var BTN = "justify-self:start;margin-top:4px;background:#1f1b22;color:#fff;text-decoration:none;border:0;cursor:pointer;padding:12px 22px;border-radius:10px;font:600 15px 'Open Sans',Arial,sans-serif";
+
   function showBlocked() {
     if (document.getElementById("enhBlocked")) return;
+    var w = document.getElementById("enhWarned"); if (w) w.remove();
     Array.prototype.forEach.call(document.querySelectorAll("audio,video"), function (m) { try { m.pause(); } catch (e) {} });
-    var o = css(document.createElement("div"), "position:fixed;inset:0;z-index:2147483000;background:#f4f7fb;display:grid;place-items:center;padding:24px;font-family:'Open Sans',Arial,sans-serif;color:#1f1b22");
+    var o = css(document.createElement("div"), "position:fixed;inset:0;z-index:2147483000;background:#f4f7fb;display:grid;place-items:center;padding:24px;" + FONT);
     o.id = "enhBlocked";
-    o.innerHTML = '<div style="max-width:460px;background:#fff;border:1px solid #e4e7ee;border-radius:16px;padding:28px;display:grid;gap:12px">' +
-      '<div style="font:700 24px/1.2 Georgia,serif">Доступ приостановлен</div>' +
-      '<div style="color:#4a586e;font-size:15px;line-height:1.55">В ваш кабинет входили с большого числа устройств, в том числе после предупреждения на почту. По правилам доступ рассчитан на одного студента и не более чем на 3 устройства.</div>' +
-      '<div style="color:#4a586e;font-size:15px;line-height:1.55">Если это ошибка, напишите нам в WhatsApp или Telegram — проверим и восстановим доступ.</div>' +
-      '<a href="/" style="justify-self:start;margin-top:4px;background:#1f1b22;color:#fff;text-decoration:none;padding:12px 20px;border-radius:10px;font-weight:600">На главную enhelp.kz</a></div>';
+    o.innerHTML = '<div role="alertdialog" aria-modal="true" style="' + CARD + '"><p style="' + H + '">' + TXT.blockTitle + '</p><p style="' + P + '">' + TXT.blockText + '</p><p style="' + P + '">' + TXT.blockHelp + '</p><a href="/" style="' + BTN + '">' + TXT.blockBtn + "</a></div>";
     document.body.appendChild(o);
     document.documentElement.style.overflow = "hidden";
   }
-  function showWarned(n) {
-    if (document.getElementById("enhWarned")) return;
-    try { if (sessionStorage.getItem("enh-warn-closed")) return; } catch (e) {}
-    var b = css(document.createElement("div"), "position:fixed;left:12px;right:12px;bottom:12px;z-index:2147482000;max-width:640px;margin:0 auto;background:#fff;border:1px solid #cfd6e2;border-radius:12px;box-shadow:0 8px 24px rgba(31,27,34,.12);padding:14px 16px;display:flex;gap:12px;align-items:flex-start;font:14px/1.5 'Open Sans',Arial,sans-serif;color:#1f1b22");
-    b.id = "enhWarned";
-    b.innerHTML = '<div style="flex:1;min-width:0"><b>Вход с ' + (n || "нескольких") + ' устройств за неделю.</b> Доступ рассчитан на одного студента и не более чем на 3 устройства. При новых входах с других устройств доступ будет приостановлен.</div>' +
-      '<button type="button" aria-label="Закрыть" style="border:0;background:none;font-size:20px;line-height:1;cursor:pointer;color:#4a586e;padding:0 2px">×</button>';
-    b.querySelector("button").onclick = function () { b.remove(); try { sessionStorage.setItem("enh-warn-closed", "1"); } catch (e) {} };
-    document.body.appendChild(b);
+  function showWarned() {
+    if (document.getElementById("enhWarned") || document.getElementById("enhBlocked")) return;
+    try { if (sessionStorage.getItem("enh-warn-seen")) return; } catch (e) {}
+    var o = css(document.createElement("div"), "position:fixed;inset:0;z-index:2147482000;background:rgba(31,27,34,.45);display:grid;place-items:center;padding:24px;" + FONT);
+    o.id = "enhWarned";
+    o.innerHTML = '<div role="alertdialog" aria-modal="true" style="' + CARD + '"><p style="' + H + '">' + TXT.warnTitle + '</p><p style="' + P + '">' + TXT.warnText + '</p><p style="' + P + ';color:#1f1b22;font-weight:600">' + TXT.warnText2 + '</p><button type="button" style="' + BTN + '">' + TXT.warnBtn + "</button></div>";
+    o.querySelector("button").onclick = function () { o.remove(); try { sessionStorage.setItem("enh-warn-seen", "1"); } catch (e) {} };
+    document.body.appendChild(o);
+    o.querySelector("button").focus();
   }
   function apply(st) {
     if (!st) return;
     if (st.status === "blocked") showBlocked();
-    else if (st.status === "warned") showWarned(st.devices);
+    else if (st.status === "warned") showWarned();
   }
   function onReady(fn) { if (document.body) fn(); else document.addEventListener("DOMContentLoaded", fn); }
   window.enhGuard = { apply: function (st) { onReady(function () { apply(st); }); } };
