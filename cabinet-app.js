@@ -85,7 +85,11 @@
   var groups = Object.keys(p.groups || {}).map(function (k) { return p.groups[k]; })
     .filter(function (g) { return g && g.name; })
     .sort(function (a, b) { return (a.sort || 0) - (b.sort || 0); });
-  var pagesOf = function (g) { var ps = g.pages || []; return (Array.isArray(ps) ? ps : Object.keys(ps).map(function (k) { return ps[k]; })).filter(function (x) { return x && x.link; }); };
+  var pagesOf = function (g) { var ps = g.pages || []; return (Array.isArray(ps) ? ps : Object.keys(ps).map(function (k) { return ps[k]; })).filter(function (x) {
+    if (!x || !x.link) return false;
+    try { return new URL(href(x.link), location.origin).pathname.replace(/\/+$/, "") !== "/my"; }
+    catch (e) { return false; }
+  }); };
   var listening = null, others = [];
   groups.forEach(function (g) {
     var ps = pagesOf(g);
