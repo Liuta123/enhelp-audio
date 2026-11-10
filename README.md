@@ -1,3 +1,3 @@
-# enhelp.kz — Listening 2026
+# Audio
 
-Аудио, архив и скрипты для страницы Listening на enhelp.kz.
+Аудио и скрипты.
